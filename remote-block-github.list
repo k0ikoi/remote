@@ -1,0 +1,19 @@
+#host
+host, tr.iadsdk.apple.com, reject
+host, firebaselogging-pa.googleapis.com, reject
+host, launches.appsflyer.com, reject
+host, m.addthis.com, reject
+host, api2.branch.io, reject
+host, ulogs.umengcloud.com, reject
+host, utoken.umeng.com, reject
+host, metrics.icloud.com, reject
+
+
+
+#host-suffix
+host-suffix, iadsdk.apple.com, reject
+host-suffix, launches.appsflyer.com, reject
+host-suffix, addthis.com, reject
+host-suffix, branch.io, reject
+host-suffix, umengcloud.com, reject
+host-suffix, umeng.com, reject

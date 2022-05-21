@@ -10,7 +10,9 @@ host, metrics.icloud.com, reject
 
 
 
+
 #host-suffix
+host-suffix, sdmfyqkghzedvx.com, reject
 host-suffix, iadsdk.apple.com, reject
 host-suffix, launches.appsflyer.com, reject
 host-suffix, addthis.com, reject

@@ -8,6 +8,9 @@ host, ulogs.umengcloud.com, reject
 host, utoken.umeng.com, reject
 host, metrics.icloud.com, reject
 host, lap-click.tr.line.me, reject
+host, nelo2-col.linecorp.com, reject
+host, nelo2-col.linecorp.com, reject
+host, lap-click.tr.line.me, reject
 
 
 

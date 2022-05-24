@@ -16,7 +16,7 @@ host, lap-click.tr.line.me, reject
 
 
 #host-suffix
-host-suffix, hqq.to, reject
+#host-suffix, hqq.to, reject
 host-suffix, pipaffiliates.com, reject
 host-suffix, sdmfyqkghzedvx.com, reject
 host-suffix, iadsdk.apple.com, reject

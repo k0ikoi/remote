@@ -1,0 +1,4 @@
+host-suffix,content-loader.com,Proxy Select
+host-suffix,error-report.com,reject
+host-suffix,html-load.com,Proxy Select
+host-suffix,html-load.cc,Proxy Select

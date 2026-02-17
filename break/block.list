@@ -12,9 +12,6 @@ host, nelo2-col.linecorp.com, reject
 host, nelo2-col.linecorp.com, reject
 host, lap-click.tr.line.me, reject
 
-
-
-
 #host-suffix
 #host-suffix, hqq.to, reject
 host-suffix, pipaffiliates.com, reject

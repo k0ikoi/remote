@@ -2,3 +2,30 @@
 .fast.com
 .nflxso.net
 .nflxvideo.net
+#
+no_resolve: true
+domain_set:
+  - netflix.com.edgesuite.net
+domain_suffix_set:
+  - fast.com
+  - netflix.com
+  - netflix.net
+  - netflixdnstest0.com
+  - netflixdnstest1.com
+  - netflixdnstest2.com
+  - netflixdnstest3.com
+  - netflixdnstest4.com
+  - netflixdnstest5.com
+  - netflixdnstest6.com
+  - netflixdnstest7.com
+  - netflixdnstest8.com
+  - netflixdnstest9.com
+  - nflxext.com
+  - nflximg.com
+  - nflximg.net
+  - nflxso.net
+  - nflxvideo.net
+domain_keyword_set:
+  - apiproxy-device-prod-nlb-
+  - dualstack.apiproxy-
+  - netflixdnstest

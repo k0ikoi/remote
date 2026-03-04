@@ -1,5 +1,5 @@
 /***
- * * 🤖 纯 Gemini 可用性检测脚本 (包含国旗显示与精准风控识别)
+ * * 🤖 纯 Gemini 可用性检测脚本 (极简精准版)
  * For Quantumult-X
  * * [task_local]
  * event-interaction https://raw.githubusercontent.com/你的路径/gemini_check.js, tag=Gemini查询, img-url=sparkles, enabled=true
@@ -7,14 +7,17 @@
 
 const BASE_URL_GEMINI = 'https://gemini.google.com/app';
 const URL_TRACE = 'https://cloudflare.com/cdn-cgi/trace';
-const UA = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36';
+const UA = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36';
 
+// 关闭自动重定向，用来精准捕获 302 状态码
 var opts1 = {
   policy: $environment.params,
-  redirection: false // 必须关闭重定向，拦截 302 状态码
+  redirection: false 
 };
 
-// 国旗字典
+// 明确不支持 Gemini 的地区黑名单 (基于你的测试，必须用物理黑名单拦截)
+const BLOCKED_REGIONS = ['CN', 'HK', 'MO', 'RU', 'KP', 'IR', 'SY', 'CU', 'BY'];
+
 var flags = new Map([
   ["AC","🇦🇨"],["AE","🇦🇪"],["AF","🇦🇫"],["AI","🇦🇮"],["AL","🇦🇱"],["AM","🇦🇲"],["AQ","🇦🇶"],["AR","🇦🇷"],["AS","🇦🇸"],["AT","🇦🇹"],["AU","🇦🇺"],["AW","🇦🇼"],["AX","🇦🇽"],["AZ","🇦🇿"],["BA","🇧🇦"],["BB","🇧🇧"],["BD","🇧🇩"],["BE","🇧🇪"],["BF","🇧🇫"],["BG","🇧🇬"],["BH","🇧🇭"],["BI","🇧🇮"],["BJ","🇧🇯"],["BM","🇧🇲"],["BN","🇧🇳"],["BO","🇧🇴"],["BR","🇧🇷"],["BS","🇧🇸"],["BT","🇧🇹"],["BV","🇧🇻"],["BW","🇧🇼"],["BY","🇧🇾"],["BZ","🇧🇿"],["CA","🇨🇦"],["CF","🇨🇫"],["CH","🇨🇭"],["CK","🇨🇰"],["CL","🇨🇱"],["CM","🇨🇲"],["CN","🇨🇳"],["CO","🇨🇴"],["CP","🇨🇵"],["CR","🇨🇷"],["CU","🇨🇺"],["CV","🇨🇻"],["CW","🇨🇼"],["CX","🇨🇽"],["CY","🇨🇾"],["CZ","🇨🇿"],["DE","🇩🇪"],["DG","🇩🇬"],["DJ","🇩🇯"],["DK","🇩🇰"],["DM","🇩🇲"],["DO","🇩🇴"],["DZ","🇩🇿"],["EA","🇪🇦"],["EC","🇪🇨"],["EE","🇪🇪"],["EG","🇪🇬"],["EH","🇪🇭"],["ER","🇪🇷"],["ES","🇪🇸"],["ET","🇪🇹"],["EU","🇪🇺"],["FI","🇫🇮"],["FJ","🇫🇯"],["FK","🇫🇰"],["FM","🇫🇲"],["FO","🇫🇴"],["FR","🇫🇷"],["GA","🇬🇦"],["GB","🇬🇧"],["HK","🇭🇰"],["HU","🇭🇺"],["ID","🇮🇩"],["IE","🇮🇪"],["IL","🇮🇱"],["IM","🇮🇲"],["IN","🇮🇳"],["IS","🇮🇸"],["IT","🇮🇹"],["JP","🇯🇵"],["KR","🇰🇷"],["LU","🇱🇺"],["MO","🇲🇴"],["MX","🇲🇽"],["MY","🇲🇾"],["NL","🇳🇱"],["PH","🇵🇭"],["RO","🇷🇴"],["RS","🇷🇸"],["RU","🇷🇺"],["RW","🇷🇼"],["SA","🇸🇦"],["SB","🇸🇧"],["SC","🇸🇨"],["SD","🇸🇩"],["SE","🇸🇪"],["SG","🇸🇬"],["TH","🇹🇭"],["TN","🇹🇳"],["TO","🇹🇴"],["TR","🇹🇷"],["TV","🇹🇻"],["TW","🇨🇳"],["UK","🇬🇧"],["UM","🇺🇲"],["US","🇺🇸"],["UY","🇺🇾"],["UZ","🇺🇿"],["VA","🇻🇦"],["VE","🇻🇪"],["VG","🇻🇬"],["VI","🇻🇮"],["VN","🇻🇳"],["ZA","🇿🇦"]
 ]);
@@ -50,7 +53,6 @@ const message = {
   });  
 })();
 
-// 核心检测逻辑 (并发请求 Gemini 和 Cloudflare Trace 以提升速度)
 function testGemini() {
   return new Promise((resolve) => {
     let optGemini = { url: BASE_URL_GEMINI, opts: opts1, timeout: 3500, headers: { 'User-Agent': UA } };
@@ -61,18 +63,16 @@ function testGemini() {
       $task.fetch(optTrace).catch(e => ({ error: e }))
     ]).then(([resGemini, resTrace]) => {
       
-      // 1. 尝试获取国家代码并匹配国旗
       let region = "UN"; 
-      let flag = "🏳️‍🌈"; // 默认未知旗帜
+      let flag = "🏳️‍🌈"; 
       if (!resTrace.error && resTrace.body) {
         let locMatch = resTrace.body.match(/loc=([A-Z]{2})/);
         if (locMatch) {
-          region = locMatch[1];
+          region = locMatch[1].toUpperCase();
           flag = flags.get(region) || region;
         }
       }
 
-      // 2. 如果 Gemini 请求超时或失败
       if (resGemini.error) {
         result["Gemini"] = "<b>Gemini: </b>检测超时 🚦";
         resolve();
@@ -80,43 +80,24 @@ function testGemini() {
       }
 
       let status = resGemini.statusCode;
-      let headers = resGemini.headers;
-      let loc = headers['Location'] || headers['location'];
-      let data = resGemini.body || "";
-      let dataLower = data.toLowerCase();
+      let headers = resGemini.headers || {};
+      let loc = (headers['Location'] || headers['location'] || "").toLowerCase();
 
-      // 3. 拦截风控与异常流量
-      if (dataLower.indexOf("unusual traffic") !== -1 || 
-          data.indexOf("通常と異なるトラフィック") !== -1 || 
-          data.indexOf("异常流量") !== -1 ||
-          data.indexOf("異常なトラフィック") !== -1) {
-        result["Gemini"] = `<b>Gemini: </b>异常流量被拦截 ➟ ⟦${flag}⟧ ⚠️`;
-        resolve();
-        return; 
-      }
-
-      // 4. 状态码分析
-      if (status === 200) {
-        if (dataLower.indexOf("isn't available") !== -1 || dataLower.indexOf("not supported") !== -1) {
-          result["Gemini"] = `<b>Gemini: </b>未支持该地区 ➟ ⟦${flag}⟧ 🚫`;
-        } else {
-          result["Gemini"] = `<b>Gemini: </b>支持 ➟ ⟦${flag}⟧ 🎉`;
-        }
+      // 核心判断逻辑 (根据 curl 抓包结果制定)
+      
+      // 1. 抓捕 Google 的验证码重定向 (你的日本节点特征)
+      if (status === 302 && loc.includes('sorry/index')) {
+        result["Gemini"] = `<b>Gemini: </b>IP 遭风控限制 (需要验证码) ➟ ⟦${flag}⟧ ⚠️`;
       } 
-      else if (status === 302 || status === 303 || status === 307) {
-        if (loc && loc.indexOf('support.google.com') !== -1) {
-          result["Gemini"] = `<b>Gemini: </b>未支持该地区 ➟ ⟦${flag}⟧ 🚫`;
-        } 
-        else if (loc && loc.indexOf('accounts.google.com') !== -1) {
-          result["Gemini"] = `<b>Gemini: </b>支持 ➟ ⟦${flag}⟧ 🎉`;
-        } 
-        else {
-          result["Gemini"] = `<b>Gemini: </b>支持 ➟ ⟦${flag}⟧ 🎉`;
-        }
+      // 2. 如果没被送进验证码页面，判断国家黑名单 (你的香港节点特征)
+      else if (BLOCKED_REGIONS.includes(region)) {
+        result["Gemini"] = `<b>Gemini: </b>未支持该地区 ➟ ⟦${flag}⟧ 🚫`;
       } 
-      else if (status === 403 || status === 429) {
-        result["Gemini"] = `<b>Gemini: </b>IP 遭风控限制 ➟ ⟦${flag}⟧ ⚠️`;
+      // 3. 既没被风控，地区也在白名单，那就视为正常 (你的本地网络特征)
+      else if (status === 200 || (status === 302 && loc.includes('accounts.google.com'))) {
+        result["Gemini"] = `<b>Gemini: </b>支持 ➟ ⟦${flag}⟧ 🎉`;
       } 
+      // 4. 其他未知异常
       else {
         result["Gemini"] = `<b>Gemini: </b>检测异常 (${status}) ➟ ⟦${flag}⟧ ❗️`;
       }

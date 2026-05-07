@@ -1,2 +1,2 @@
-http=172.20.10.1:8899,fast-open=false, udp-relay=false, tag=个人热点http
-socks5= 172.20.10.1:9988,fast-open=false, udp-relay=false, tag=个人热点socks5
+http=172.20.10.1:8899,fast-open=false, udp-relay=false, tag=personal hotspot http
+socks5= 172.20.10.1:9988,fast-open=false, udp-relay=false, tag=personal hotspot socks5

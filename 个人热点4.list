@@ -1,0 +1,15 @@
+- socks5:
+    name: '33'
+    server: 3.3.3.3
+    port: 3333
+    username: ''
+    password: ''
+    tfo: false
+    udp_relay: true
+- http:
+    name: '88'
+    server: 1.1.1.1
+    port: 88
+    username: ''
+    password: ''
+    tfo: false

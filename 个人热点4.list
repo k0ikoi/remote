@@ -1,9 +1,0 @@
-- http:
-    name: '个人热点http'
-    server: 172.20.10.1
-    port: 8899
-- socks5:
-    name: '个人热点socks5'
-    server: 172.20.10.1
-    port: 9988
-    udp_relay: false
